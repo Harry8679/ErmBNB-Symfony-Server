@@ -2,10 +2,12 @@
 
 namespace App\Entity;
 
-use App\Repository\PropertyImageRepository;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
+use App\Repository\PropertyImageRepository;
 
 #[ORM\Entity(repositoryClass: PropertyImageRepository::class)]
+#[ApiResource()]
 class PropertyImage
 {
     #[ORM\Id]
