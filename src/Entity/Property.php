@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PropertyRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -68,6 +70,21 @@ class Property
     #[ORM\ManyToOne(inversedBy: 'properties')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
+
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'images')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?self $property = null;
+
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'property')]
+    private Collection $images;
+
+    public function __construct()
+    {
+        $this->images = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -286,6 +303,48 @@ class Property
     public function setUser(?User $user): static
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getProperty(): ?self
+    {
+        return $this->property;
+    }
+
+    public function setProperty(?self $property): static
+    {
+        $this->property = $property;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(self $image): static
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setProperty($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(self $image): static
+    {
+        if ($this->images->removeElement($image)) {
+            // set the owning side to null (unless already changed)
+            if ($image->getProperty() === $this) {
+                $image->setProperty(null);
+            }
+        }
 
         return $this;
     }
